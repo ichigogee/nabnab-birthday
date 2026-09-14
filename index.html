@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Happy Birthday! 🎂</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      background: linear-gradient(135deg, #ffe0ec, #e7d7ff, #d9f3ff);
+      color: #3d3045;
+      padding: 20px;
+    }
+
+    .birthday-card {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: 480px;
+      padding: 45px 28px;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      border-radius: 28px;
+      box-shadow: 0 20px 60px rgba(100, 70, 120, 0.15);
+      backdrop-filter: blur(12px);
+      animation: cardAppear 1s ease forwards;
+    }
+
+    .emoji {
+      font-size: 4rem;
+      animation: bounce 2s infinite;
+      margin-bottom: 15px;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 8vw, 3.2rem);
+      color: #c65386;
+      margin-bottom: 12px;
+      line-height: 1.2;
+    }
+
+    .name {
+      color: #805ad5;
+    }
+
+    .message {
+      font-size: 1rem;
+      line-height: 1.8;
+      margin: 18px auto 25px;
+      max-width: 360px;
+      color: #62566b;
+    }
+
+    .cake {
+      font-size: 5rem;
+      margin: 15px 0 25px;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    button {
+      border: none;
+      background: linear-gradient(135deg, #d65a91, #8b68d9);
+      color: white;
+      padding: 14px 28px;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(198, 83, 134, 0.25);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 25px rgba(198, 83, 134, 0.35);
+    }
+
+    button:active {
+      transform: scale(0.95);
+    }
+
+    .footer {
+      margin-top: 25px;
+      font-size: 0.8rem;
+      color: #8c7d96;
+    }
+
+    .surprise {
+      margin-top: 20px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #c65386;
+      animation: surpriseAppear 0.6s ease forwards;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* Animations */
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    @keyframes cardAppear {
+      from { opacity: 0; transform: translateY(30px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes surpriseAppear {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Fullscreen Overlay Canvas */
+    #confetti-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    /* Mobile screens */
+    @media (max-width: 480px) {
+      body { padding: 15px; }
+      .birthday-card { padding: 35px 20px; border-radius: 22px; }
+      .emoji { font-size: 3.2rem; }
+      .cake { font-size: 4.2rem; }
+      .message { font-size: 0.95rem; line-height: 1.7; }
+      button { width: 100%; max-width: 260px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- Standalone Confetti Canvas -->
+<canvas id="confetti-canvas"></canvas>
+
+<main class="birthday-card">
+ 
+
+  <h1>Happy Birthday,<br /><span class="name">Love!</span></h1>
+
+  <p class="message">
+    My love, the days may seem bleak, and will make you weak. You turn to nature for companion as you carry on. You may turn 27, and immense pressure builds up a burden. Just remember, my love, I am here, with every step you bear, I'll hold you dear. I'll wait till we meet again, and greet you with a kiss. Happy birthday dearest love! 💖
+  </p>
+
+  <div class="cake">🎂</div>
+
+  <button onclick="celebrate()">do i love you??</button>
+
+  <p id="surprise" class="surprise hidden">
+    so so so so much, nabnab! 🥹  </p>
+
+  <p class="footer">a poem for nabnab💗</p>
+</main>
+
+<script>
+  const canvas = document.getElementById("confetti-canvas");
+  const ctx = canvas.getContext("2d");
+
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener("resize", resizeCanvas);
+  resizeCanvas();
+
+  let particles = [];
+  let animationId = null;
+
+  const colors = ["#ff6b9d", "#ffd166", "#7c5cff", "#4ecdc4", "#ff8c42", "#c65386"];
+
+  function addBurst(x, y, amount = 120) {
+    for (let i = 0; i < amount; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = Math.random() * 16 + 6;
+      particles.push({
+        x: x,
+        y: y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - 3,
+        size: Math.random() * 8 + 6,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        rotation: Math.random() * 360,
+        vRot: (Math.random() - 0.5) * 12,
+        gravity: 0.28,
+        drag: 0.95,
+        opacity: 1
+      });
+    }
+  }
+
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.vx *= p.drag;
+      p.vy *= p.drag;
+      p.vy += p.gravity;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rotation += p.vRot;
+      p.opacity -= 0.007;
+
+      if (p.opacity <= 0 || p.y > canvas.height + 20) {
+        particles.splice(i, 1);
+        continue;
+      }
+
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate((p.rotation * Math.PI) / 180);
+      ctx.globalAlpha = Math.max(0, p.opacity);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 1.4);
+      ctx.restore();
+    }
+
+    if (particles.length > 0) {
+      animationId = requestAnimationFrame(animate);
+    } else {
+      animationId = null;
+    }
+  }
+
+  function triggerConfetti(x, y, amount) {
+    addBurst(x, y, amount);
+    if (!animationId) {
+      animate();
+    }
+  }
+
+  function celebrate() {
+    // Reveal surprise text
+    const surprise = document.getElementById("surprise");
+    if (surprise) {
+      surprise.classList.remove("hidden");
+    }
+
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight * 0.45;
+
+    // Center explosion
+    triggerConfetti(centerX, centerY, 140);
+
+    // Side blasts
+    setTimeout(() => triggerConfetti(centerX - 180, centerY + 40, 80), 150);
+    setTimeout(() => triggerConfetti(centerX + 180, centerY + 40, 80), 300);
+  }
+
+  // Gentle continuous rain on load
+  window.addEventListener("load", () => {
+    for (let i = 0; i < 35; i++) {
+      setTimeout(() => {
+        const randomX = Math.random() * window.innerWidth;
+        triggerConfetti(randomX, -10, 3);
+      }, i * 90);
+    }
+  });
+</script>
+
+</body>
+</html>
