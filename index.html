@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Happy Birthday! 🎂</title>
 
   <style>
@@ -10,11 +10,13 @@
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
-      font-family: "Segoe UI", Arial, sans-serif;
+      font-family: "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
       min-height: 100vh;
+      min-height: -webkit-fill-available;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -24,6 +26,21 @@
       padding: 20px;
     }
 
+    html {
+      height: -webkit-fill-available;
+    }
+
+    /* Fullscreen Overlay Canvas */
+    #confetti-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
     .birthday-card {
       position: relative;
       z-index: 2;
@@ -31,12 +48,37 @@
       max-width: 480px;
       padding: 45px 28px;
       text-align: center;
-      background: rgba(255, 255, 255, 0.75);
-      border: 1px solid rgba(255, 255, 255, 0.8);
+      background: rgba(255, 255, 255, 0.82);
+      border: 1px solid rgba(255, 255, 255, 0.9);
       border-radius: 28px;
       box-shadow: 0 20px 60px rgba(100, 70, 120, 0.15);
       backdrop-filter: blur(12px);
-      animation: cardAppear 1s ease forwards;
+      -webkit-backdrop-filter: blur(12px);
+      animation: cardAppear 0.8s ease forwards;
+    }
+
+    /* Mute/Unmute Floating Button */
+    .music-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid rgba(200, 200, 200, 0.5);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      transition: transform 0.2s ease;
+      z-index: 3;
+    }
+
+    .music-btn:active {
+      transform: scale(0.9);
     }
 
     .emoji {
@@ -70,26 +112,28 @@
       animation: float 3s ease-in-out infinite;
     }
 
-    button {
+    button.celebrate-btn {
       border: none;
       background: linear-gradient(135deg, #d65a91, #8b68d9);
       color: white;
-      padding: 14px 28px;
+      padding: 16px 32px;
       border-radius: 50px;
-      font-size: 1rem;
+      font-size: 1.05rem;
       font-weight: 600;
       cursor: pointer;
-      box-shadow: 0 8px 20px rgba(198, 83, 134, 0.25);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 8px 20px rgba(198, 83, 134, 0.28);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      user-select: none;
+      touch-action: manipulation;
     }
 
-    button:hover {
+    button.celebrate-btn:hover {
       transform: translateY(-3px);
       box-shadow: 0 12px 25px rgba(198, 83, 134, 0.35);
     }
 
-    button:active {
-      transform: scale(0.95);
+    button.celebrate-btn:active {
+      transform: scale(0.94);
     }
 
     .footer {
@@ -122,34 +166,23 @@
     }
 
     @keyframes cardAppear {
-      from { opacity: 0; transform: translateY(30px) scale(0.95); }
+      from { opacity: 0; transform: translateY(20px) scale(0.96); }
       to { opacity: 1; transform: translateY(0) scale(1); }
     }
 
     @keyframes surpriseAppear {
-      from { opacity: 0; transform: translateY(10px); }
+      from { opacity: 0; transform: translateY(8px); }
       to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Fullscreen Overlay Canvas */
-    #confetti-canvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      pointer-events: none;
-      z-index: 10;
     }
 
     /* Mobile screens */
     @media (max-width: 480px) {
       body { padding: 15px; }
-      .birthday-card { padding: 35px 20px; border-radius: 22px; }
+      .birthday-card { padding: 32px 18px; border-radius: 22px; }
       .emoji { font-size: 3.2rem; }
-      .cake { font-size: 4.2rem; }
-      .message { font-size: 0.95rem; line-height: 1.7; }
-      button { width: 100%; max-width: 260px; }
+      .cake { font-size: 4rem; }
+      .message { font-size: 0.95rem; line-height: 1.65; }
+      button.celebrate-btn { width: 100%; max-width: 280px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -166,8 +199,16 @@
 <!-- Standalone Confetti Canvas -->
 <canvas id="confetti-canvas"></canvas>
 
+<!-- Audio Element -->
+<audio id="bgMusic" loop preload="auto">
+  <!-- Ensure your song file (e.g., song.mp3) is saved in the same GitHub directory -->
+  <source src="sunshine.mp3" type="audio/mpeg" />
+  Your browser does not support audio playback.
+</audio>
+
 <main class="birthday-card">
- 
+  <!-- Mute / Unmute Toggle Button -->
+  <button class="music-btn" id="musicToggle" title="Toggle Music">🎵</button>
 
   <h1>Happy Birthday,<br /><span class="name">Love!</span></h1>
 
@@ -177,10 +218,11 @@
 
   <div class="cake">🎂</div>
 
-  <button onclick="celebrate()">do i love you??</button>
+  <button class="celebrate-btn" id="celebrateBtn">do i love you??</button>
 
   <p id="surprise" class="surprise hidden">
-    so so so so much, nabnab! 🥹  </p>
+    so so so so much, nabnab! 🥹
+  </p>
 
   <p class="footer">a poem for nabnab💗</p>
 </main>
@@ -188,16 +230,42 @@
 <script>
   const canvas = document.getElementById("confetti-canvas");
   const ctx = canvas.getContext("2d");
+  const btn = document.getElementById("celebrateBtn");
+  const music = document.getElementById("bgMusic");
+  const musicToggle = document.getElementById("musicToggle");
 
-  function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-  }
-  window.addEventListener("resize", resizeCanvas);
-  resizeCanvas();
-
+  let isPlaying = false;
+  let dpr = window.devicePixelRatio || 1;
   let particles = [];
   let animationId = null;
+
+  // Audio Play / Pause Control
+  function toggleAudio() {
+    if (isPlaying) {
+      music.pause();
+      musicToggle.textContent = "🔇";
+      isPlaying = false;
+    } else {
+      music.play().then(() => {
+        musicToggle.textContent = "🎵";
+        isPlaying = true;
+      }).catch(err => {
+        console.log("Audio playback blocked or file missing:", err);
+      });
+    }
+  }
+
+  musicToggle.addEventListener("click", toggleAudio);
+
+  function resizeCanvas() {
+    dpr = window.devicePixelRatio || 1;
+    canvas.width = window.innerWidth * dpr;
+    canvas.height = window.innerHeight * dpr;
+    ctx.scale(dpr, dpr);
+  }
+
+  window.addEventListener("resize", resizeCanvas);
+  resizeCanvas();
 
   const colors = ["#ff6b9d", "#ffd166", "#7c5cff", "#4ecdc4", "#ff8c42", "#c65386"];
 
@@ -222,7 +290,7 @@
   }
 
   function animate() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
     for (let i = particles.length - 1; i >= 0; i--) {
       const p = particles[i];
@@ -234,7 +302,7 @@
       p.rotation += p.vRot;
       p.opacity -= 0.007;
 
-      if (p.opacity <= 0 || p.y > canvas.height + 20) {
+      if (p.opacity <= 0 || p.y > window.innerHeight + 20) {
         particles.splice(i, 1);
         continue;
       }
@@ -262,30 +330,40 @@
     }
   }
 
-  function celebrate() {
+  function celebrate(e) {
+    if (e) e.preventDefault();
+
+    // Start background music automatically on user click/tap
+    if (!isPlaying) {
+      toggleAudio();
+    }
+
     // Reveal surprise text
     const surprise = document.getElementById("surprise");
     if (surprise) {
       surprise.classList.remove("hidden");
     }
 
-    const centerX = window.innerWidth / 2;
-    const centerY = window.innerHeight * 0.45;
+    const rect = btn.getBoundingClientRect();
+    const btnCenterX = rect.left + rect.width / 2;
+    const btnCenterY = rect.top + rect.height / 2;
 
-    // Center explosion
-    triggerConfetti(centerX, centerY, 140);
+    // Center explosion directly at the button location
+    triggerConfetti(btnCenterX, btnCenterY, 140);
 
     // Side blasts
-    setTimeout(() => triggerConfetti(centerX - 180, centerY + 40, 80), 150);
-    setTimeout(() => triggerConfetti(centerX + 180, centerY + 40, 80), 300);
+    setTimeout(() => triggerConfetti(window.innerWidth * 0.2, window.innerHeight * 0.4, 80), 150);
+    setTimeout(() => triggerConfetti(window.innerWidth * 0.8, window.innerHeight * 0.4, 80), 300);
   }
 
-  // Gentle continuous rain on load
+  btn.addEventListener("click", celebrate);
+
+  // Gentle continuous rain on page load
   window.addEventListener("load", () => {
+    resizeCanvas();
     for (let i = 0; i < 35; i++) {
       setTimeout(() => {
-        const randomX = Math.random() * window.innerWidth;
-        triggerConfetti(randomX, -10, 3);
+        triggerConfetti(Math.random() * window.innerWidth, -10, 3);
       }, i * 90);
     }
   });
